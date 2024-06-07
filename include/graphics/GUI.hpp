@@ -4,6 +4,7 @@
 #include "SFML/Graphics.hpp"
 #include <concepts>
 #include <type_traits>
+#include <utility>
 
 namespace LY {
 template <typename... T>
@@ -24,6 +25,7 @@ using namespace LY::conversions;
 class GUI {
 private:
 	static inline constexpr auto FPS = 60_fps;
+	static inline constexpr auto MARGIN = 100;
 
 public:
 	GUI(void);
@@ -44,6 +46,7 @@ private:
 		requires IsDrawable<ElemType> || IsIterableOfDrawable<ElemType> || IsIterableOfIterableOfDrawable<ElemType>
 	auto drawElement(const ElemType& element) -> void;
 
+	auto convertToSFMLCoord(const Point& cartesian) const -> const Point;
 };
 
 template <typename ElemType>

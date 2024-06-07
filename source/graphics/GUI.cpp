@@ -28,4 +28,9 @@ auto GUI::run(void) -> void {
 		update(circles1, circle1, circle2);
 	}
 }
+
+auto GUI::convertToSFMLCoord(const Point& cartesian) const -> const Point {
+	return { cartesian.first + MARGIN, (window.getSize().y - cartesian.second) - MARGIN };
+}
+
 }
