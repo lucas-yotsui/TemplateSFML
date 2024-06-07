@@ -15,6 +15,11 @@ concept IsDrawable = requires(T... elems) { (std::derived_from<decltype(elems), 
 template <typename... T>
 concept IsIterableOfDrawable = requires(T... elems) { (std::derived_from<typename decltype(elems)::value_type, sf::Drawable> && ...); };
 
+template <typename... T>
+concept IsIterableOfIterableOfDrawable = requires(T... elems) { (std::derived_from<typename decltype(elems)::value_type::value_type, sf::Drawable> && ...); };
+
+using Point = std::pair<double, double>;
+
 using namespace LY::conversions;
 class GUI {
 private:
@@ -26,8 +31,9 @@ public:
 	auto run(void) -> void;
 
 	template <typename... ElemType>
-		requires AtLeastOne<ElemType...> && (IsIterableOfDrawable<ElemType...> || IsDrawable<ElemType...>)
+		requires AtLeastOne<ElemType...> && (IsDrawable<ElemType...> || IsIterableOfDrawable<ElemType...> || IsIterableOfIterableOfDrawable<ElemType...>)
 	auto update(const ElemType&... element) -> void;
+
 
 private:
 	sf::RenderWindow window;
@@ -35,22 +41,29 @@ private:
 	sf::Clock clock;
 
 	template <typename ElemType>
-		requires IsIterableOfDrawable<ElemType> || IsDrawable<ElemType>
-	auto drawElem(const ElemType& element) -> void;
+		requires IsDrawable<ElemType> || IsIterableOfDrawable<ElemType> || IsIterableOfIterableOfDrawable<ElemType>
+	auto drawElement(const ElemType& element) -> void;
+
 };
 
 template <typename ElemType>
-	requires IsIterableOfDrawable<ElemType> || IsDrawable<ElemType>
-auto GUI::drawElem(const ElemType& element) -> void {
-	if constexpr (IsIterableOfDrawable<ElemType>)
+	requires IsDrawable<ElemType> || IsIterableOfDrawable<ElemType> || IsIterableOfIterableOfDrawable<ElemType>
+auto GUI::drawElement(const ElemType& element) -> void {
+	if constexpr (IsIterableOfIterableOfDrawable<ElemType>)
+		for (const auto& container : element)
+			for (const auto& entity : container)
+				window.draw(entity);
+
+	else if constexpr (IsIterableOfDrawable<ElemType>)
 		for (const auto& entity : element)
 			window.draw(entity);
+
 	else
 		window.draw(element);
 }
 
 template <typename... ElemType>
-	requires AtLeastOne<ElemType...> && (IsIterableOfDrawable<ElemType...> || IsDrawable<ElemType...>)
+	requires AtLeastOne<ElemType...> && (IsDrawable<ElemType...> || IsIterableOfDrawable<ElemType...> || IsIterableOfIterableOfDrawable<ElemType...>)
 auto GUI::update(const ElemType&... element) -> void {
 	clock.restart();
 
@@ -63,7 +76,7 @@ auto GUI::update(const ElemType&... element) -> void {
 	}
 
 	window.clear();
-	(drawElem(element), ...);
+	(drawElement(element), ...);
 	window.display();
 
 	using namespace LY::conversions;
