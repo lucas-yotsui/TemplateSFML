@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Project definition
-project(knn
+project(TemplateSFML
 	VERSION 0.0.1
-	DESCRIPTION "Implementations of KNN algorithm"
+	DESCRIPTION "Template for projects using SFML"
 	LANGUAGES CXX
 )
 file(GLOB_RECURSE SOURCES ${CMAKE_SOURCE_DIR}/source/*.cpp ${CMAKE_SOURCE_DIR}/include/*.h)
